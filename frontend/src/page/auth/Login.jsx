@@ -1,12 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import FormInput from "../../components/ui/FormInput";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import { login as loginApi } from "../../api/Auth";
-import { useContext } from "react";
-export default function LoginPage() {
+
+const Login = () => {
   const navigate = useNavigate();
-  const { login } = useContext(AuthContext);
+  const { login, user } = useContext(AuthContext);
 
   const [errors, setErrors] = useState("");
   const [form, setForm] = useState({
@@ -25,18 +25,22 @@ export default function LoginPage() {
     try {
       const tokenData = await loginApi(form);
       await login(tokenData);
+    } catch (err) {
+      setErrors(
+        err.response?.data?.detail || "Username atau password salah"
+      );
+    }
+  };
 
-      if (tokenData.user?.is_admin) {
+  useEffect(() => {
+    if (user) {
+      if (user.role === "admin" || user.is_admin) {
         navigate("/admin/dashboard");
       } else {
         navigate("/home");
       }
-    } catch (err) {
-      setErrors(
-        err.response?.data?.detail || "username atau password salah"
-      );
     }
-  };
+  }, [user, navigate]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-rose-50 to-green-50 px-4">
@@ -51,6 +55,7 @@ export default function LoginPage() {
           <h2 className="text-2xl font-bold text-gray-800 text-center">
             Masuk ke <span className="text-rose-500">BungaKu</span>
           </h2>
+
           {errors && (
             <div className="bg-red-100 text-red-700 px-4 py-2 rounded-md text-sm">
               {errors}
@@ -58,19 +63,21 @@ export default function LoginPage() {
           )}
 
           <FormInput
-            label={"Username"}
-            type={"text"}
-            name={"username"}
+            label="Username"
+            type="text"
+            name="username"
+            value={form.username}
             onChange={handleChange}
-            placeholder={"Contoh: User@gmail.com"}
+            placeholder="Contoh: user"
           />
 
           <FormInput
-            label={"Password"}
-            type={"password"}
-            name={"password"}
+            label="Password"
+            type="password"
+            name="password"
+            value={form.password}
             onChange={handleChange}
-            placeholder={"••••••••"}
+            placeholder="••••••••"
           />
 
           <button
@@ -81,7 +88,7 @@ export default function LoginPage() {
           </button>
 
           <p className="text-center text-sm text-gray-600">
-            Belum punya akun?
+            Belum punya akun?{" "}
             <a href="/register" className="text-rose-500 hover:underline">
               Daftar sekarang
             </a>
@@ -90,7 +97,7 @@ export default function LoginPage() {
       </div>
     </div>
   );
-}
+};
 
 function FlowerIcon({ className }) {
   return (
@@ -104,3 +111,5 @@ function FlowerIcon({ className }) {
     </svg>
   );
 }
+
+export default Login;
