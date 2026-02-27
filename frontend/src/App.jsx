@@ -9,6 +9,8 @@ import "./App.css";
 import Dashboard from "./page/admin/dashboard";
 import Products from "./page/admin/Products.jsx";
 import AdminRoute from "./routes/AdminRoutes.jsx";
+import Category from "./page/admin/Category.jsx";
+import DetailProduct from "./page/user/DetailProduct.jsx";
 
 function App() {
   return (
@@ -35,7 +37,7 @@ function App() {
           <Route
             path="/home"
             element={
-              <PrivateRoute>
+             <PrivateRoute>
                 <Homepage />
               </PrivateRoute>
             }
@@ -58,9 +60,27 @@ function App() {
             }
           />
 
+          <Route
+            path="/admin/products"
+            element={
+              <AdminRoute>
+                <Products />
+              </AdminRoute>
+            }
+          />
+
+          <Route
+            path="/admin/categories"
+            element={
+              <AdminRoute>
+                <Category />
+              </AdminRoute>
+            }
+          />
+
+          <Route path="/product/:id" element={<DetailProduct />} />
+
           <Route path="*" element={<Navigate to="/login" />} />
-          <Route path="admin/products" element={<Products />} />
-          {/* <Route path="*" element={<Navigate to="/login" />} /> */}
         </Routes>
       </BrowserRouter>
     </>

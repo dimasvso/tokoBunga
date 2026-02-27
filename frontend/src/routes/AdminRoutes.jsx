@@ -10,7 +10,6 @@ const AdminRoute = ({ children }) => {
 
   if (!user) return <Navigate to="/login" />;
 
-  // Cek role lowercase ("admin") dan fallback ke is_admin jika ada
   if (!(user.role === "admin" || user.is_admin)) return <Navigate to="/" />;
 
   return children;

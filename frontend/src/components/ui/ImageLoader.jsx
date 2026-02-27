@@ -12,7 +12,7 @@ export default function ImageLoader({ src, alt, className }) {
   if (error) {
     return (
       <div
-        className={`${className} bg-gray-300 flex items-center justify-center`}
+        className={`${className} bg-gray-300 h-50 w-50 flex items-center justify-center`}
       >
         <span className="text-gray-500 text-sm">Image Error</span>
       </div>

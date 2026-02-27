@@ -1,6 +1,7 @@
 import AdminLayout from "../../components/layout/AdminLayout";
 import CrudModal from "../../components/ui/CrudModal";
 import Button from "../../components/ui/Button";
+import CardProductsAdmin from "../../components/ui/CardProductAdmin";
 import { useState, useEffect } from "react";
 import {
   getProducts,
@@ -56,21 +57,33 @@ function Products() {
       rows: 3,
       placeholder: "Deskripsi produk...",
     },
-    // {
-    //   name: "isActive",
-    //   label: "Produk Aktif",
-    //   type: "checkbox",
-    // },
+    {
+      name: "images",
+      label: "Images",
+      type: "file",
+      multiple: true,
+    },
   ];
 
   const handleSubmit = async (data, mode) => {
     try {
       setError("");
-      const { stock, ...payload } = data;
+      let formData = null;
+      // Cek jika ada field images (array file)
+      if (data.images && Array.isArray(data.images) && data.images.length > 0) {
+        formData = new FormData();
+        Object.entries(data).forEach(([key, value]) => {
+          if (key === "images" && Array.isArray(value)) {
+            value.forEach((file) => formData.append("images", file));
+          } else {
+            formData.append(key, value);
+          }
+        });
+      }
       if (mode === "create") {
-        await createProduct(payload);
-      } else if (mode === "edit" && selectedProduct) {
-        await updateProduct(selectedProduct.id, payload);
+        await createProduct(formData || data);
+      } else if (mode === "edit" && selectedProduct && selectedProduct.id) {
+        await updateProduct(selectedProduct.id, formData || data);
       }
       setModalOpen(false);
       fetchProducts();
@@ -94,6 +107,7 @@ function Products() {
     setLoading(true);
     try {
       const data = await getProducts();
+      console.log("Data produk:", data);
       setProducts(data);
     } catch {
       setError("Gagal mengambil data produk");
@@ -130,7 +144,7 @@ function Products() {
         <div className="flex justify-end w-full">
           <Button onClick={openCreate}>Add +</Button>
         </div>
-        {error && <div className="text-red-600">{error}</div>}
+        {/* {error && <div className="text-red-600">{error}</div>}
         {loading ? (
           <div>Loading...</div>
         ) : (
@@ -163,8 +177,34 @@ function Products() {
               ))}
             </tbody>
           </table>
-        )}
+        )} */}
+
+        <div className="grid grid-cols-5 gap-5">
+          {products.map((product) => (
+            <CardProductsAdmin
+              key={product.id}
+              images={product.images || []}
+              title={product.name}
+              price={product.price?.toLocaleString("id-ID", {
+                style: "currency",
+                currency: "IDR",
+              })}
+              description={product.description}
+              ButtonEdit={
+                <Button size="sm" onClick={() => openEdit(product)}>
+                  <i className="ri-pencil-line"></i>
+                </Button>
+              }
+              ButtonDelete={
+                <Button size="sm" onClick={() => handleDelete(product)}>
+                  <i className="ri-delete-bin-line"></i>
+                </Button>
+              }
+            />
+          ))}
+        </div>
       </div>
+
       <CrudModal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}

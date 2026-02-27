@@ -28,11 +28,30 @@ export default function CrudModal({
     }, [isOpen, initialData, fields]);
 
     const handleChange = (e) => {
-      const { name, value, type, checked } = e.target;
-      setFormData((prev) => ({
-        ...prev,
-        [name]: type === "checkbox" ? checked : value,
-      }));
+      const { name, value, type, checked, files, multiple } = e.target;
+      setFormData((prev) => {
+        if (type === "file" && multiple) {
+          // Gabungkan file lama dan file baru
+          const oldFiles = Array.isArray(prev[name]) ? prev[name] : [];
+          const newFiles = Array.from(files);
+          // Cegah duplikat file (berdasarkan nama dan size)
+          const mergedFiles = [...oldFiles, ...newFiles].filter(
+            (file, idx, arr) =>
+              arr.findIndex(
+                (f) => f.name === file.name && f.size === file.size,
+              ) === idx,
+          );
+          return {
+            ...prev,
+            [name]: mergedFiles,
+          };
+        }
+        return {
+          ...prev,
+          [name]:
+            type === "checkbox" ? checked : type === "file" ? files[0] : value,
+        };
+      });
     };
 
     const handleSubmit = async (e) => {
@@ -74,14 +93,38 @@ export default function CrudModal({
           {/* Form */}
           <form onSubmit={handleSubmit} className="p-6 space-y-4">
             {fields.map((field) => (
-              <FormInput
-                key={field.name}
-                {...field}
-                value={formData[field.name] || ""}
-                onChange={handleChange}
-                disabled={mode === "view" || field.disabled}
-                className={mode === "view" ? "bg-gray-100" : ""}
-              />
+              <div key={field.name}>
+                <FormInput
+                  {...field}
+                  value={formData[field.name] || ""}
+                  onChange={handleChange}
+                  disabled={mode === "view" || field.disabled}
+                  className={mode === "view" ? "bg-gray-100" : ""}
+                />
+                {/* Preview untuk field images */}
+                {field.type === "file" &&
+                  field.multiple &&
+                  formData[field.name] &&
+                  Array.isArray(formData[field.name]) &&
+                  formData[field.name].length > 0 && (
+                    <div className="flex gap-2 mt-2 flex-wrap">
+                      {formData[field.name].map((file, idx) => {
+                        const url =
+                          typeof file === "string"
+                            ? file
+                            : URL.createObjectURL(file);
+                        return (
+                          <img
+                            key={idx}
+                            src={url}
+                            alt={file.name || `Image ${idx + 1}`}
+                            className="h-16 w-16 object-cover rounded border"
+                          />
+                        );
+                      })}
+                    </div>
+                  )}
+              </div>
             ))}
 
             {/* Actions */}

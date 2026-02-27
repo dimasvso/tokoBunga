@@ -49,9 +49,11 @@ INSTALLED_APPS = [
     # third party
     "rest_framework",
     "corsheaders",
+    "django_extensions",
     # local apps
     "apps.accounts.apps.AccountsConfig",
     "apps.products.apps.ProductsConfig",
+    "apps.category.apps.CategoryConfig",
 ]
 
 

@@ -10,29 +10,15 @@ from rest_framework.permissions import IsAuthenticated
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def Getme(request):
-    permission_classes = [IsAuthenticated]
     user = request.user
-    account = getattr(user, "account", None)
 
-    is_admin = False
-    if account and account.role == "admin":
-        is_admin = True
-    elif request.user.groups.filter(name="admin").exists():
-        is_admin = True
-
-    return Response(
-        {
-            "id": user.id,
-            "username": user.username,
-            "email": user.email,
-            "address": account.address if account else "",
-            "avatar": account.avatar.url if account and account.avatar else None,
-            "role": account.role if account else None,
-            "is_admin": is_admin,
-        },
-        status=status.HTTP_200_OK,
-    )
-
+    return Response({
+        "id": user.id,
+        "username": user.username,
+        "email": user.email,
+        "groups": list(user.groups.values_list("name", flat=True)),
+        "is_admin": user.groups.filter(name__iexact="admin").exists()
+    })
 
 @api_view(["PUT"])
 @permission_classes([IsAuthenticated])

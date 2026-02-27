@@ -1,6 +1,11 @@
-/* src/components/QuantityStepper.jsx */
 import { useState } from "react";
-export const QuantityStepper = ({ initial = 1, min = 1, max = 99, onChange }) => {
+
+export default function QuantityStepper({ 
+  initial = 1, 
+  min = 1, 
+  max = 99, 
+  onChange 
+}) {
   const [qty, setQty] = useState(initial);
 
   const handle = (delta) => {
@@ -18,14 +23,16 @@ export const QuantityStepper = ({ initial = 1, min = 1, max = 99, onChange }) =>
       >
         -
       </button>
+
       <span className="font-semibold w-6 text-center">{qty}</span>
+
       <button
         type="button"
-        onClick={() => handle(+1)}
+        onClick={() => handle(1)}
         className="text-gray-600 hover:text-rose-500"
       >
         +
       </button>
     </div>
   );
-};
+}
