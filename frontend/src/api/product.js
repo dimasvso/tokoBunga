@@ -28,7 +28,6 @@ export const deleteProduct = async (id) => {
   return res.data;
 };
 
-// Get single product by id
 export const getProductById = async (id) => {
   const res = await api.get(`api/products/${id}/`);
   return res.data;

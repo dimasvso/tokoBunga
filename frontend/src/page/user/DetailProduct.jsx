@@ -1,7 +1,6 @@
 // src/pages/ProductDetail.jsx
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-
 import Button from "../../components/ui/Button";
 import Badge from "../../components/ui/Bagde";
 import FlowerIcon from "../../components/ui/FlowerIcon";
@@ -16,7 +15,6 @@ export default function DetailProduct() {
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedVariant, setSelectedVariant] = useState(null);
   const [quantity, setQuantity] = useState(1);
-  const [isLiked, setIsLiked] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -25,7 +23,6 @@ export default function DetailProduct() {
         const data = await getProductById(id);
         setProduct(data);
 
-        // set default variant
         if (data.variants?.length > 0) {
           setSelectedVariant(data.variants[0].id);
         }
@@ -67,20 +64,7 @@ export default function DetailProduct() {
                   className="w-full h-full object-cover"
                 />
 
-                <button
-                  onClick={() => setIsLiked(!isLiked)}
-                  className="absolute top-3 right-3 w-10 h-10 bg-white/90 rounded-full flex items-center justify-center shadow-md"
-                >
-                  <span
-                    className={
-                      isLiked
-                        ? "text-rose-500 text-xl"
-                        : "text-gray-400 text-xl"
-                    }
-                  >
-                    {isLiked ? "♥" : "♡"}
-                  </span>
-                </button>
+            
 
                 {product.discount > 0 && (
                   <Badge className="absolute top-3 left-3 bg-rose-500 text-white">
@@ -111,7 +95,6 @@ export default function DetailProduct() {
             </div>
           </div>
 
-          {/* RIGHT */}
           <div className="space-y-6">
             <div className="bg-white rounded-2xl p-5 shadow-sm">
               <h1 className="text-xl font-semibold text-gray-800 mb-2">
@@ -152,7 +135,7 @@ export default function DetailProduct() {
               )}
 
               <div className="flex gap-3">
-                <Button variant="outline" className="flex-1">
+                <Button variant="outline" className="flex-1" onClick>
                   Keranjang
                 </Button>
 
@@ -164,7 +147,6 @@ export default function DetailProduct() {
 
             <div className="bg-white rounded-2xl p-5 shadow-sm">
               <h3 className="font-bold text-gray-800 mb-3">Deskripsi Produk</h3>
-
               <div className="text-sm text-gray-600 whitespace-pre-line leading-relaxed">
                 {product.description}
               </div>

@@ -2,11 +2,10 @@ from django.shortcuts import render
 from rest_framework import viewsets
 from .models import Category
 from .serializers import CategorySerializer
-from apps.accounts.permissions import IsAdmin
+from rest_framework.permissions import AllowAny
 
 # Create your views here.
-
 class CategoryViewSet(viewsets.ModelViewSet):
-    permission_classes=[IsAdmin]
+    permission_classes=[AllowAny]
     queryset = Category.objects.all()
     serializer_class = CategorySerializer

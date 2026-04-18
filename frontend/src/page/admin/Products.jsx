@@ -2,21 +2,17 @@ import AdminLayout from "../../components/layout/AdminLayout";
 import CrudModal from "../../components/ui/CrudModal";
 import Button from "../../components/ui/Button";
 import CardProductsAdmin from "../../components/ui/CardProductAdmin";
-import { useState, useEffect } from "react";
-import {
-  getProducts,
-  createProduct,
-  updateProduct,
-  deleteProduct,
-} from "../../api/product";
+import { useState } from "react";
+import { useProducts } from "../../context/ProductsContext";
 
 function Products() {
+  const { products, loading, error, addProduct, editProduct, removeProduct } =
+    useProducts();
+
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("create");
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [submitError, setSubmitError] = useState("");
 
   const productFields = [
     {
@@ -26,17 +22,6 @@ function Products() {
       required: true,
       placeholder: "Contoh: Buket Bunga Ulang Tahun",
     },
-    // {
-    //   name: "category",
-    //   label: "Kategori",
-    //   type: "select",
-    //   required: true,
-    //   options: [
-    //     { value: "buket", label: "Buket Bunga" },
-    //     { value: "tangkai", label: "Bunga Per Tangkai" },
-    //     { value: "papan", label: "Papan Ucapan" },
-    //   ],
-    // },
     {
       name: "price",
       label: "Harga",
@@ -44,12 +29,6 @@ function Products() {
       required: true,
       placeholder: "280000",
     },
-    // {
-    //   name: "stock",
-    //   label: "Stok",
-    //   type: "number",
-    //   default: 0,
-    // },
     {
       name: "description",
       label: "Deskripsi",
@@ -65,60 +44,44 @@ function Products() {
     },
   ];
 
+  const buildFormData = (data) => {
+    if (data.images && Array.isArray(data.images) && data.images.length > 0) {
+      const formData = new FormData();
+      Object.entries(data).forEach(([key, value]) => {
+        if (key === "images" && Array.isArray(value)) {
+          value.forEach((file) => formData.append("images", file));
+        } else {
+          formData.append(key, value);
+        }
+      });
+      return formData;
+    }
+    return data;
+  };
+
   const handleSubmit = async (data, mode) => {
+    setSubmitError("");
+    const payload = buildFormData(data);
     try {
-      setError("");
-      let formData = null;
-      // Cek jika ada field images (array file)
-      if (data.images && Array.isArray(data.images) && data.images.length > 0) {
-        formData = new FormData();
-        Object.entries(data).forEach(([key, value]) => {
-          if (key === "images" && Array.isArray(value)) {
-            value.forEach((file) => formData.append("images", file));
-          } else {
-            formData.append(key, value);
-          }
-        });
-      }
       if (mode === "create") {
-        await createProduct(formData || data);
-      } else if (mode === "edit" && selectedProduct && selectedProduct.id) {
-        await updateProduct(selectedProduct.id, formData || data);
+        await addProduct(payload); // ← dari context
+      } else if (mode === "edit" && selectedProduct?.id) {
+        await editProduct(selectedProduct.id, payload); // ← dari context
       }
       setModalOpen(false);
-      fetchProducts();
-    } catch (err) {
-      setError("Gagal menyimpan produk");
+    } catch {
+      setSubmitError("Gagal menyimpan produk.");
     }
   };
 
   const handleDelete = async (product) => {
     if (!window.confirm(`Hapus produk ${product.name}?`)) return;
     try {
-      setError("");
-      await deleteProduct(product.id);
-      fetchProducts();
-    } catch (err) {
-      setError("Gagal menghapus produk");
-    }
-  };
-
-  const fetchProducts = async () => {
-    setLoading(true);
-    try {
-      const data = await getProducts();
-      console.log("Data produk:", data);
-      setProducts(data);
+      await removeProduct(product.id); // ← dari context
     } catch {
-      setError("Gagal mengambil data produk");
-    } finally {
-      setLoading(false);
+      setSubmitError("Gagal menghapus produk.");
     }
   };
-
-  useEffect(() => {
-    fetchProducts();
-  }, []);
 
   const openCreate = () => {
     setModalMode("create");
@@ -128,7 +91,13 @@ function Products() {
 
   const openEdit = (product) => {
     setModalMode("edit");
-    setSelectedProduct(product);
+    setSelectedProduct({
+      id: product.id,
+      name: product.title, 
+      price: product.price,
+      description: product.description,
+      images: product.images,
+    });
     setModalOpen(true);
   };
 
@@ -144,45 +113,16 @@ function Products() {
         <div className="flex justify-end w-full">
           <Button onClick={openCreate}>Add +</Button>
         </div>
-        {/* {error && <div className="text-red-600">{error}</div>}
-        {loading ? (
-          <div>Loading...</div>
-        ) : (
-          <table className="w-full bg-rose-600 text-white rounded-lg overflow-hidden">
-            <thead className="border border-white">
-              <tr>
-                <th className="text-2xl text-center py-2">Name</th>
-                <th className="text-2xl text-center py-2">Price</th>
-                <th className="text-2xl text-center py-2">Description</th>
-                <th className="text-2xl text-center py-2">Action</th>
-              </tr>
-            </thead>
-            <tbody className="bg-rose-400">
-              {products.map((product) => (
-                <tr key={product.id}>
-                  <td className="py-3 text-center">{product.name}</td>
-                  <td className="py-3 text-center">
-                    Rp {product.price?.toLocaleString("id-ID")}
-                  </td>
-                  <td className="py-3 text-center">{product.description}</td>
-                  <td className="py-3 text-center space-x-2">
-                    <Button size="sm" onClick={() => openEdit(product)}>
-                      <i className="ri-pencil-line"></i>
-                    </Button>
-                    <Button size="sm" onClick={() => handleDelete(product)}>
-                      <i className="ri-delete-bin-line"></i>
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )} */}
+
+        {error && <p className="text-red-500 text-sm">{error}</p>}
+        {submitError && <p className="text-red-500 text-sm">{submitError}</p>}
+        {loading && <p className="text-gray-400 text-sm">Memuat produk...</p>}
 
         <div className="grid grid-cols-5 gap-5">
           {products.map((product) => (
             <CardProductsAdmin
               key={product.id}
+              id={product.id}
               images={product.images || []}
               title={product.name}
               price={product.price?.toLocaleString("id-ID", {
@@ -190,16 +130,8 @@ function Products() {
                 currency: "IDR",
               })}
               description={product.description}
-              ButtonEdit={
-                <Button size="sm" onClick={() => openEdit(product)}>
-                  <i className="ri-pencil-line"></i>
-                </Button>
-              }
-              ButtonDelete={
-                <Button size="sm" onClick={() => handleDelete(product)}>
-                  <i className="ri-delete-bin-line"></i>
-                </Button>
-              }
+              ButtonEdit={openEdit}
+              ButtonDelete={handleDelete}
             />
           ))}
         </div>

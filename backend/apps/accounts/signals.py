@@ -9,9 +9,7 @@ User = get_user_model()
 @receiver(post_save, sender=User)
 def create_account_and_assign_group(sender, instance, created, **kwargs):
     if created:
-        # buat account
         Account.objects.create(user=instance)
 
-        # assign default group
         group, _ = Group.objects.get_or_create(name="customer")
         instance.groups.add(group)

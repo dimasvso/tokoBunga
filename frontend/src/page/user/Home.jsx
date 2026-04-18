@@ -1,25 +1,26 @@
 import Button from "../../components/ui/Button";
 import Header from "../../components/layout/Header";
 import CardDis from "../../components/layout/CardDis";
-import { getProducts } from "../../api/product";
-import { useEffect, useState } from "react";
+// import { getProducts } from "../../api/product";
+import { useState } from "react";
 import Userlayout from "../../components/layout/UserLayout";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
+import { useProducts } from "../../context/ProductsContext";
 export default function Homepage() {
-  const [products, setProducts] = useState([]);
+  const { products} = useProducts(); 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const data = await getProducts();
-        setProducts(data);
-      } catch (error) {
-        console.error("Error fetching products:", error);
-      }
-    };
 
-    fetchProducts();
-  }, []);
+  const totalPages = Math.ceil(products.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentProducts = products.slice(startIndex, startIndex + itemsPerPage);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    document.getElementById("product")?.scrollIntoView({ behavior: "smooth" });
+  };
 
   return (
     <Userlayout>
@@ -46,7 +47,7 @@ export default function Homepage() {
                       size="lg"
                       className="bg-primary hover:bg-primary/90 text-primary-foreground group"
                     >
-                      Custom Order
+                      <a href="https://www.instagram.com/dimasvso/" target="_blank">Custom Order</a>
                     </Button>
                   </a>
                 </div>
@@ -64,7 +65,8 @@ export default function Homepage() {
                     className="absolute inset-0 w-full h-full object-cover rounded-[3rem] "
                   />
 
-                  <motion.div className="absolute -left-4 top-1/4 bg-[#fefefe] shadow-xl rounded-2xl p-4 animate-float"
+                  <motion.div
+                    className="absolute -left-4 top-1/4 bg-[#fefefe] shadow-xl rounded-2xl p-4 animate-float"
                     animate={{ y: 10 }}
                     transition={{
                       duration: 0.7,
@@ -75,7 +77,7 @@ export default function Homepage() {
                   >
                     <div className="flex items-center gap-3">
                       <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                        <span className="text-xl">🌸</span>
+                        <i class="ri-flower-line text-xl"></i>
                       </div>
                       <div>
                         <div className="text-sm font-semibold text-foreground">
@@ -95,12 +97,12 @@ export default function Homepage() {
                       duration: 0.5,
                       repeat: Infinity,
                       repeatType: "reverse",
-                      ease: "easeInOut"
+                      ease: "easeInOut",
                     }}
                   >
                     <div className="flex items-center gap-3">
                       <div className="h-10 w-10 rounded-full bg-sage/10 flex items-center justify-center">
-                        <span className="text-xl">🚚</span>
+                        <i class="ri-truck-line text-xl"></i>
                       </div>
                       <div>
                         <div className="text-sm font-semibold text-foreground">
@@ -121,8 +123,42 @@ export default function Homepage() {
         </section>
 
         <section className="h-5 bg-[#d9d9d9] my-10" />
-        <section>
-          <CardDis cardData={products} />
+        <section id="product">
+          <Button variant="primary" className="ml-20" ><Link to="/allproducts">All Products</Link></Button>
+          <CardDis cardData={currentProducts} />
+
+
+          {totalPages > 1 && (
+            <div className="flex justify-center items-center gap-2 mt-8">
+              <Button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                variant="outline"
+              >
+                ←
+              </Button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                (page) => (
+                  <Button
+                    key={page}
+                    onClick={() => handlePageChange(page)}
+                    variant={page === currentPage ? "primary" : "outline"}
+                    
+                  >
+                    {page}
+                  </Button>
+                ),
+              )}
+
+              <Button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                variant="outline"
+              >
+                →
+              </Button>
+            </div>
+          )}
         </section>
       </div>
     </Userlayout>

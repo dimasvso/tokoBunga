@@ -50,7 +50,7 @@ const Login = () => {
           <FlowerIcon className="w-20 h-20 text-white" />
           <FlowerIcon className="w-14 h-14 text-white opacity-70 absolute bottom-4 right-6" />
         </div>
-z
+
         <form className="p-8 space-y-6" onSubmit={handleSubmit}>
           <h2 className="text-2xl font-bold text-gray-800 text-center">
             Masuk ke <span className="text-rose-500">BungaKu</span>
@@ -82,7 +82,7 @@ z
 
           <button
             type="submit"
-            className="w-full bg-rose-500 hover:bg-rose-600 text-white font-semibold py-2.5 rounded-lg transition"
+            className="w-full bg-rose-500 hover:bg-rose-600 text-white font-semibold py-2.5 rounded-lg transition cursor-pointer"
           >
             Masuk
           </button>

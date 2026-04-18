@@ -1,9 +1,9 @@
 /* src/components/Button.jsx */
-import clsx from "clsx";   
-export default function Button ({
+import clsx from "clsx";
+export default function Button({
   children,
-  variant = "primary",   
-  size = "md",         
+  variant = "primary",
+  size = "md",
   className,
   ...props
 }) {
@@ -30,4 +30,4 @@ export default function Button ({
       {children}
     </button>
   );
-};
+}

@@ -11,12 +11,17 @@ import Products from "./page/admin/Products.jsx";
 import AdminRoute from "./routes/AdminRoutes.jsx";
 import Category from "./page/admin/Category.jsx";
 import DetailProduct from "./page/user/DetailProduct.jsx";
+import Inventory from "./page/admin/Inventory.jsx";
+import AllProducts from "./page/user/AllProducts.jsx";
+import Checkout from "./page/user/Checkout.jsx";
+import Orders from "./page/user/Orders.jsx";
 
 function App() {
   return (
     <>
       <BrowserRouter>
         <Routes>
+          {/* AuthRoute */}
           <Route
             path="/login"
             element={
@@ -33,11 +38,13 @@ function App() {
               </AuthRoute>
             }
           />
+          {/* AuthRoute */}
 
+          {/* PrivateRoute */}
           <Route
             path="/home"
             element={
-             <PrivateRoute>
+              <PrivateRoute>
                 <Homepage />
               </PrivateRoute>
             }
@@ -50,7 +57,43 @@ function App() {
               </PrivateRoute>
             }
           />
+          <Route
+            path="/product/:id"
+            element={
+              <PrivateRoute>
+                <DetailProduct />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/allproducts"
+            element={
+              <PrivateRoute>
+                <AllProducts />
+              </PrivateRoute>
+            }
+          />
 
+          <Route
+            path="/checkout"
+            element={
+              <PrivateRoute>
+                <Checkout />
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/orders"
+            element={
+              <PrivateRoute>
+                <Orders />
+              </PrivateRoute>
+            }
+          />
+          {/* PrivateRoute */}
+
+          {/* AdminRoute */}
           <Route
             path="/admin/dashboard"
             element={
@@ -59,7 +102,14 @@ function App() {
               </AdminRoute>
             }
           />
-
+          <Route
+            path="/admin/inventory"
+            element={
+              <AdminRoute>
+                <Inventory />
+              </AdminRoute>
+            }
+          />
           <Route
             path="/admin/products"
             element={
@@ -68,7 +118,6 @@ function App() {
               </AdminRoute>
             }
           />
-
           <Route
             path="/admin/categories"
             element={
@@ -77,10 +126,8 @@ function App() {
               </AdminRoute>
             }
           />
-
-          <Route path="/product/:id" element={<DetailProduct />} />
-
-          <Route path="*" element={<Navigate to="/login" />} />
+          {/* AdminRoute */}
+          <Route path="*" element={<Navigate to="/home" />} />
         </Routes>
       </BrowserRouter>
     </>

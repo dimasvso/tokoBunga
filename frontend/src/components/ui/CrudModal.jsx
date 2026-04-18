@@ -31,10 +31,8 @@ export default function CrudModal({
       const { name, value, type, checked, files, multiple } = e.target;
       setFormData((prev) => {
         if (type === "file" && multiple) {
-          // Gabungkan file lama dan file baru
           const oldFiles = Array.isArray(prev[name]) ? prev[name] : [];
           const newFiles = Array.from(files);
-          // Cegah duplikat file (berdasarkan nama dan size)
           const mergedFiles = [...oldFiles, ...newFiles].filter(
             (file, idx, arr) =>
               arr.findIndex(

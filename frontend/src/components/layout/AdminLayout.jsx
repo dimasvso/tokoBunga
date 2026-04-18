@@ -8,10 +8,7 @@ function AdminLayout({ children, title, subtitle, branch }) {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    // 1. Cabut token
     localStorage.removeItem("token");
-
-    // kalau lo simpan role / user
     localStorage.removeItem("role");
     localStorage.removeItem("user");
 

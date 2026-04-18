@@ -16,6 +16,7 @@ function CardDis({ cardData }) {
           return (
             <CardProduct
               key={card.id}
+              id={card.id}
               title={card.name}
               description={card.description}
               price={card.price}

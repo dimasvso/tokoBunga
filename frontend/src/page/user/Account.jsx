@@ -4,7 +4,7 @@ import FlowerIcon from "../../components/ui/FlowerIcon";
 import Button from "../../components/ui/Button";
 import { logout } from "../../utils/auth";
 import { useNavigate } from "react-router-dom";
-import { updateUserApi, updatePasswordApi } from "../../api/Auth";
+import { updateUserApi } from "../../api/Auth";
 import { useAuth } from "../../context/AuthContext";
 
 export default function AccountPage() {
@@ -20,14 +20,7 @@ export default function AccountPage() {
     avatar: null,
   });
 
-  const [passwordForm, setPasswordForm] = useState({
-    old_password: "",
-    new_password: "",
-    confirm_password: "",
-  });
-
   const [loadingProfile, setLoadingProfile] = useState(false);
-  const [loadingPassword, setLoadingPassword] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -45,14 +38,6 @@ export default function AccountPage() {
     setProfileForm({
       ...profileForm,
       [name]: files ? files[0] : value,
-    });
-  };
-
-  const handlePasswordChange = (e) => {
-    const { name, value } = e.target;
-    setPasswordForm({
-      ...passwordForm,
-      [name]: value,
     });
   };
 
@@ -82,48 +67,8 @@ export default function AccountPage() {
     }
   };
 
-  const handlePasswordSubmit = async (e) => {
-    e.preventDefault();
-
-    if (
-      !passwordForm.old_password ||
-      !passwordForm.new_password ||
-      !passwordForm.confirm_password
-    ) {
-      alert("Semua field password wajib diisi");
-      return;
-    }
-
-    if (passwordForm.new_password !== passwordForm.confirm_password) {
-      alert("Password baru tidak sama");
-      return;
-    }
-
-    setLoadingPassword(true);
-
-    try {
-      await updatePasswordApi({
-        old_password: passwordForm.old_password,
-        new_password: passwordForm.new_password,
-      });
-
-      alert("Password berhasil diganti");
-
-      setPasswordForm({
-        old_password: "",
-        new_password: "",
-        confirm_password: "",
-      });
-    } catch {
-      alert("Password lama salah");
-    } finally {
-      setLoadingPassword(false);
-    }
-  };
-
   const handleLogout = () => {
     logout();
-    navigate("/login");
   };
 
   if (!user) return null;
@@ -188,38 +133,6 @@ export default function AccountPage() {
               <Button type="submit" disabled={loadingProfile}>
                 {loadingProfile ? "Saving..." : "Save Profile"}
               </Button>
-            </div>
-          </form>
-
-          <form
-            className="grid md:grid-cols-2 gap-6"
-            onSubmit={handlePasswordSubmit}
-          >
-            <FormInput
-              label="Password Lama"
-              type="password"
-              name="old_password"
-              value={passwordForm.old_password}
-              onChange={handlePasswordChange}
-            />
-
-            <FormInput
-              label="Password Baru"
-              type="password"
-              name="new_password"
-              value={passwordForm.new_password}
-              onChange={handlePasswordChange}
-            />
-
-            <FormInput
-              label="Ulangi Password Baru"
-              type="password"
-              name="confirm_password"
-              value={passwordForm.confirm_password}
-              onChange={handlePasswordChange}
-            />
-
-            <div className="md:col-span-2 flex justify-end gap-3">
               <Button
                 variant="outline"
                 type="button"
@@ -229,9 +142,6 @@ export default function AccountPage() {
               </Button>
               <Button variant="outline" type="button" onClick={handleLogout}>
                 Logout
-              </Button>
-              <Button type="submit" disabled={loadingPassword}>
-                {loadingPassword ? "Saving..." : "Change Password"}
               </Button>
             </div>
           </form>
